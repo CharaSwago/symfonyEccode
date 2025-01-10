@@ -5,6 +5,9 @@ namespace App\Entity;
 use App\Repository\BookRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\User;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
 class Book
@@ -20,8 +23,9 @@ class Book
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::BIGINT)]
-    private ?string $category_id = null;
+    #[ORM\ManyToOne(targetEntity: Category::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Category $category = null;
 
     #[ORM\Column]
     private ?int $pages = null;
@@ -35,6 +39,38 @@ class Book
     #[ORM\Column]
     private ?\DateTime $updated_at = null;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\User", mappedBy="books")
+     */
+    private Collection $users;
+
+    public function __construct()
+    {
+        // Initialiser la collection vide
+        $this->users = new ArrayCollection();
+    }
+
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        $this->users->removeElement($user);
+
+        return $this;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -45,10 +81,9 @@ class Book
         return $this->name;
     }
 
-    public function setName(string $name): static
+    public function setName(string $name): self
     {
         $this->name = $name;
-
         return $this;
     }
 
@@ -57,22 +92,20 @@ class Book
         return $this->description;
     }
 
-    public function setDescription(string $description): static
+    public function setDescription(string $description): self
     {
         $this->description = $description;
-
         return $this;
     }
 
-    public function getCategoryId(): ?string
+    public function getCategory(): ?Category
     {
-        return $this->category_id;
+        return $this->category;
     }
 
-    public function setCategoryId(string $category_id): static
+    public function setCategory(?Category $category): self
     {
-        $this->category_id = $category_id;
-
+        $this->category = $category;
         return $this;
     }
 
@@ -81,10 +114,9 @@ class Book
         return $this->pages;
     }
 
-    public function setPages(int $pages): static
+    public function setPages(int $pages): self
     {
         $this->pages = $pages;
-
         return $this;
     }
 
@@ -93,10 +125,9 @@ class Book
         return $this->publication_date;
     }
 
-    public function setPublicationDate(\DateTimeInterface $publication_date): static
+    public function setPublicationDate(\DateTimeInterface $publication_date): self
     {
         $this->publication_date = $publication_date;
-
         return $this;
     }
 
@@ -105,10 +136,9 @@ class Book
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTime $created_at): static
+    public function setCreatedAt(\DateTime $created_at): self
     {
         $this->created_at = $created_at;
-
         return $this;
     }
 
@@ -117,10 +147,9 @@ class Book
         return $this->updated_at;
     }
 
-    public function setUpdatedAt(\DateTime $updated_at): static
+    public function setUpdatedAt(\DateTime $updated_at): self
     {
         $this->updated_at = $updated_at;
-
         return $this;
     }
 }

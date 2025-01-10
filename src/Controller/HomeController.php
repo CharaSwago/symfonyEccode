@@ -3,9 +3,11 @@
 namespace App\Controller;
 
 use App\Repository\BookReadRepository;
+use App\Repository\BookRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
 
 class HomeController extends AbstractController
 {
@@ -14,11 +16,11 @@ class HomeController extends AbstractController
     // Inject the repository via the constructor
     public function __construct(BookReadRepository $bookReadRepository)
     {
-        $this->bookReadRepository = $bookReadRepository;
+        $this->readBookRepository = $bookReadRepository;
     }
 
     #[Route('/', name: 'app.home')]
-    public function index(): Response
+    public function index(BookRepository $bookRepository): Response
     {
         // Vérifier si l'utilisateur est connecté
         if (!$this->getUser()) {
@@ -28,10 +30,13 @@ class HomeController extends AbstractController
 
         // Si l'utilisateur est connecté, récupérer les livres lus
         $userId     = $this->getUser()->getId();  // Assurez-vous d'utiliser l'ID de l'utilisateur connecté
-        $booksRead  = $this->bookReadRepository->findByUserId($userId, false);
+        $booksRead  = $this->readBookRepository->findByUserId($userId, false);
+         // Récupérer les livres depuis le repository
+        $books = $bookRepository->findAll();
 
         return $this->render('pages/home.html.twig', [
             'booksRead' => $booksRead,
+            'books'     => $books,
             'name'      => 'Accueil', // Passer des données à la vue
         ]);
     }

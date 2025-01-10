@@ -1,53 +1,47 @@
 <div class="modal" data-modal="true" id="book_modal">
-    <div class="modal-content max-w-[600px] top-[15%]">
+    <div id="modalContent" class="modal-content max-w-[600px] top-[15%]">
         <div class="modal-header py-4 px-5">
-            <h3 class="modal-title">Ma lecture</h3>
+            <h3 class="modal-title">Associer une description à un livre</h3>
         </div>
         <div class="modal-body p-0 pb-5">
-            <div class="scrollable-y-auto" data-scrollable="true" data-scrollable-max-height="auto"
-                 data-scrollable-offset="300px">
-                <form>
+            <div class="scrollable-y-auto" data-scrollable="true" data-scrollable-max-height="auto" data-scrollable-offset="300px">
+                <!-- Formulaire -->
+                <form id="updateDescriptionForm" action="{{ path('handle_description') }}" method="POST">
                     <div class="flex flex-col gap-5 p-5">
+                        <!-- Sélection d'un livre -->
                         <div class="flex flex-col gap-1">
                             <label for="book" class="form-label font-normal text-gray-900">Livre</label>
-                            <select id="book" class="select">
-                                <option>Livre 1</option>
-                                <option>Livre 2</option>
+                            <select id="book" name="book_id" class="select" required>
+                                <option value="" disabled selected>Choisissez un livre</option>
+                                {% for book in books %}
+                                    <option value="{{ book.id }}">{{ book.name }}</option>
+                                {% endfor %}
                             </select>
                         </div>
 
+                        <!-- Champ de description -->
                         <div class="flex flex-col gap-1">
-                            <label class="form-label font-normal text-gray-900">Mes notes</label>
-                            <div class="flex flex-col w-full gap-1">
-                            <textarea name="description" class="textarea"
-                                      placeholder="Notez-ici les idées importantes de l'oeuvre."></textarea>
+                            <label for="description" class="form-label font-normal text-gray-900">Description</label>
+                            <textarea id="description" name="description" class="textarea"
+                                placeholder="Ajoutez une description au livre..." required></textarea>
+                        </div>
+
+                        <!-- Système de notation -->
+                        <div class="flex flex-col gap-1">
+                            <label for="rating" class="form-label font-normal text-gray-900">Note</label>
+                            <div id="rating" class="rating">
+                                {% for i in 1..5 %}
+                                    <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" class="hidden" />
+                                    <label for="star{{ i }}" class="star {{ i <= selected_rating ? 'checked' : '' }}">
+                                        <i class="ki-solid ki-star text-base leading-none"></i>
+                                    </label>
+                                {% endfor %}
                             </div>
                         </div>
 
-                        <div class="flex flex-col gap-1">
-                            <label for="book" class="form-label font-normal text-gray-900">Note</label>
-                            <select id="book" class="select" name="rating">
-                                <option>1</option>
-                                <option>1.5</option>
-                                <option>2</option>
-                                <option>2.5</option>
-                                <option>3</option>
-                                <option>3.5</option>
-                                <option>4</option>
-                                <option>4.5</option>
-                                <option>5</option>
-                            </select>
-                        </div>
-
-                        <div class="flex flex-col gap-1">
-                            <label class="switch">
-                                <span class="switch-label font-normal text-gray-900">Lecture terminée</span>
-                                <input name="check" type="checkbox" value="0"/>
-                            </label>
-                        </div>
-
-                        <div class="flex">
-                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        <!-- Bouton Enregistrer -->
+                        <div class="flex justify-end">
+                            <button type="submit" class="btn btn-primary">Associer la description</button>
                         </div>
                     </div>
                 </form>
