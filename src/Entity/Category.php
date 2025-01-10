@@ -40,6 +40,11 @@ class Category
         $this->books = new ArrayCollection();
     }
 
+    public function __toString(): string
+    {
+        return $this->name ?? 'Category';
+    }
+
     public function getId(): ?int
     {
         return $this->id;

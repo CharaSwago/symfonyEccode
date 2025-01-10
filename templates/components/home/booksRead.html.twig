@@ -49,16 +49,6 @@
                                 </div>
                             </td>
                             <td>{{ book.category }}</td> <!-- Affichage de la catégorie -->
-                            <td>
-                                <div class="rating">
-                                    <!-- Génération dynamique des étoiles en fonction de la note -->
-                                    {% for i in 1..5 %}
-                                        <div class="rating-label {% if i <= book.rating %}checked{% endif %}">
-                                            <i class="rating-on ki-solid ki-star text-base leading-none"></i>
-                                            <i class="rating-off ki-outline ki-star text-base leading-none"></i>
-                                        </div>
-                                    {% endfor %}
-                                </div>
                             </td>
                         </tr>
                         {% endfor %}

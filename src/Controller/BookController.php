@@ -89,4 +89,25 @@ class BookController extends AbstractController
         ]);
     }
 
+    #[Route('/book-read/{id}/status', name: 'update_book_status', methods: ['PATCH'])]
+    public function updateStatus(BookRead $bookRead, Request $request): JsonResponse
+    {
+        // Vérification que l'utilisateur est autorisé à modifier ce livre
+        if (!$this->isGranted('ROLE_USER') || $bookRead->getUser() !== $this->getUser()) {
+            return new JsonResponse(['status' => 'error', 'message' => 'Unauthorized'], 403);
+        }
+
+        // Récupération des données envoyées par la requête
+        $data = json_decode($request->getContent(), true);
+
+        // Mise à jour du statut "terminé"
+        if (isset($data['finished'])) {
+            $bookRead->setFinished($data['finished']);
+            $this->entityManager->flush();
+        }
+
+        // Retourner une réponse indiquant que l'opération a été effectuée avec succès
+        return new JsonResponse(['status' => 'success']);
+    }
+
 }

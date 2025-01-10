@@ -23,20 +23,7 @@
                         <div class="flex flex-col gap-1">
                             <label for="description" class="form-label font-normal text-gray-900">Description</label>
                             <textarea id="description" name="description" class="textarea"
-                                placeholder="Ajoutez une description au livre..." required></textarea>
-                        </div>
-
-                        <!-- Système de notation -->
-                        <div class="flex flex-col gap-1">
-                            <label for="rating" class="form-label font-normal text-gray-900">Note</label>
-                            <div id="rating" class="rating">
-                                {% for i in 1..5 %}
-                                    <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" class="hidden" />
-                                    <label for="star{{ i }}" class="star {{ i <= selected_rating ? 'checked' : '' }}">
-                                        <i class="ki-solid ki-star text-base leading-none"></i>
-                                    </label>
-                                {% endfor %}
-                            </div>
+                                placeholder="Ajoutez une description au livre..." required>  </textarea>
                         </div>
 
                         <!-- Bouton Enregistrer -->
