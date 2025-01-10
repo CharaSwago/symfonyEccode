@@ -6,6 +6,9 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Doctrine\Common\Collections\Collection; 
+use Doctrine\Common\Collections\ArrayCollection; 
+use App\Entity\Book;  
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -22,17 +25,50 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180)]
     private ?string $email = null;
 
-    /**
-     * @var list<string> Le role utilisateur
-     */
-    #[ORM\Column]
-    private array $roles = [];
-
-    /**
-     * @var string hash le mot de passe
-     */
     #[ORM\Column]
     private ?string $password = null;
+
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
+
+    // Relation Many-to-Many avec Book
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Book", inversedBy="users")
+     * @ORM\JoinTable(name="users_books")
+     */
+    private Collection $books;
+
+    public function __construct()
+    {
+        $this->books = new ArrayCollection();
+    }
+
+    public function getBooks(): Collection
+    {
+        return $this->books;
+    }
+
+    public function addBook(Book $book): self
+    {
+        if (!$this->books->contains($book)) {
+            $this->books[] = $book;
+        }
+
+        return $this;
+    }
+
+    public function removeBook(Book $book): self
+    {
+        $this->books->removeElement($book);
+
+        return $this;
+    }
+    
+    // Implémentation de getUserIdentifier() qui fait partie de l'interface UserInterface
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;  // Utilisation de l'email comme identifiant unique
+    }
 
     public function getId(): ?int
     {
@@ -47,7 +83,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUsername(string $username): self
     {
         $this->username = $username;
-
         return $this;
     }
 
@@ -59,47 +94,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): static
     {
         $this->email = $email;
-
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
-    public function getUserIdentifier(): string
-    {
-        return (string) $this->email;
-    }
+    // Méthodes des rôles, mot de passe, etc.
 
-    /**
-     * @see UserInterface
-     *
-     * @return list<string>
-     */
     public function getRoles(): array
     {
+        // Si les rôles de base ne sont pas définis, on ajoute 'ROLE_USER'
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
+        $roles[] = 'ROLE_USER';  // Chaque utilisateur doit avoir le rôle de base 'ROLE_USER'
+    
+        return array_unique($roles);  // On retourne un tableau unique des rôles
     }
 
-    /**
-     * @param list<string> $roles
-     */
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
-
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): ?string
     {
         return $this->password;
@@ -112,12 +126,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     */
+
     public function eraseCredentials(): void
     {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+        // Effacement des données sensibles si nécessaire
     }
 }
